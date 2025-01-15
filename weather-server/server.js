@@ -11,7 +11,7 @@ app.use(cors());
 
 // Middleware for parsing JSON
 app.use(express.json());
-
+ah
 
 
 // Weather API endpoint
@@ -37,8 +37,9 @@ app.use(express.json());
 // });
 // In the backend, modify the /weather route to send the needed information:
 
+// Updated /weather route
 app.get('/weather', async (req, res) => {
-  const location = req.query.location || 'Johannesburg'; // Default to Johannesburg if no location is provided
+  const location = req.query.location || 'Johannesburg'; // Default to Johannesburg
   const weatherApiKey = process.env.WEATHER_API_KEY;
 
   if (!weatherApiKey) {
@@ -50,21 +51,23 @@ app.get('/weather', async (req, res) => {
     const response = await axios.get(weatherUrl);
 
     const cityName = response.data.name;
-    const tempInWords = getTemperatureInWords(response.data.main.temp); // Function to convert temp to words
+    const tempInCelsius = response.data.main.temp;
+    const tempInWords = getTemperatureInWords(tempInCelsius);
+    const activities = getActivities(tempInCelsius);
 
     res.json({
       cityName,
       cityAbbreviation: cityName.substring(0, 3).toUpperCase(),
       tempInWords,
-      tempInCelsius: response.data.main.temp,
-      mapUrl: `https://www.google.com/maps?q=${response.data.coord.lat},${response.data.coord.lon}&z=12`
+      tempInCelsius,
+      mapUrl: `https://www.google.com/maps?q=${response.data.coord.lat},${response.data.coord.lon}&z=12`,
+      activities, // Added activities
     });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Error fetching weather data');
   }
 });
-
 
 // Helper function to convert temperature to words
 const getTemperatureInWords = (temp) => {
@@ -73,6 +76,36 @@ const getTemperatureInWords = (temp) => {
   if (temp < 20) return "Cool";
   if (temp < 30) return "Warm";
   return "Hot";
+};
+
+// Helper function to suggest activities
+const getActivities = (temp) => {
+  if (temp < 0) {
+    return [
+      { activity: "Skiing", location: "Snow Resort", mapUrl: "https://www.google.com/maps?q=snow+resort" },
+      { activity: "Ice Skating", location: "Ice Arena", mapUrl: "https://www.google.com/maps?q=ice+arena" },
+    ];
+  } else if (temp < 10) {
+    return [
+      { activity: "Hot Chocolate Tasting", location: "Cafe Central", mapUrl: "https://www.google.com/maps?q=cafe+central" },
+      { activity: "Indoor Movie Marathon", location: "Cinema Park", mapUrl: "https://www.google.com/maps?q=cinema+park" },
+    ];
+  } else if (temp < 20) {
+    return [
+      { activity: "Hiking", location: "Green Hill", mapUrl: "https://www.google.com/maps?q=green+hill" },
+      { activity: "Cycling", location: "City Park", mapUrl: "https://www.google.com/maps?q=city+park" },
+    ];
+  } else if (temp < 30) {
+    return [
+      { activity: "Swimming", location: "Beach Paradise", mapUrl: "https://www.google.com/maps?q=beach+paradise" },
+      { activity: "Outdoor Yoga", location: "Sunset Gardens", mapUrl: "https://www.google.com/maps?q=sunset+gardens" },
+    ];
+  } else {
+    return [
+      { activity: "Water Park Visit", location: "Splash World", mapUrl: "https://www.google.com/maps?q=splash+world" },
+      { activity: "Beach Volleyball", location: "Sunny Beach", mapUrl: "https://www.google.com/maps?q=sunny+beach" },
+    ];
+  }
 };
 
 
