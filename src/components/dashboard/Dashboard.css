@@ -26,11 +26,13 @@
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     border-radius: 0.8rem;
-    padding: 20px 15px 20px 15px;
+    padding: 20px;
+    margin-top: 20px;
+    gap: 1rem;
   }
   
   .feeds {
-    width: 250px;
+    width: auto;
     height: 100%;
     display: flex;
     align-items: center;
@@ -43,6 +45,22 @@
   .feeds img {
     width: 120px;
   }
+  
+  .feed {
+    flex-grow: 1; /* Occupy remaining space in feed-1 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    overflow: hidden;
+  }
+  
+  .feed img {
+    width: 100%; /* Fill container width */
+    height: 100%; /* Fill container height */
+    object-fit: cover; /* Maintain aspect ratio while covering the container */
+  }
+  
   
   .feeds > div {
     width: 100%;
@@ -206,6 +224,7 @@
     transform: translateX(200px);
     animation: slide-right 1s ease forwards;
     animation-delay: 0.2s;
+    margin-top: 20px;
   }
   
   .all-cities {
@@ -284,3 +303,41 @@
     background: transparent;
     border: 1px solid #fff;
   }
+  
+  /* Large screens */
+  @media (min-width: 1024px) {
+    .dashboard-section {
+      flex-direction: row;
+    }
+    .home {
+      width: 70%;
+    }
+    .cities, .feeds {
+      width: 30%;
+    }
+  }
+  
+  /* Medium screens (smaller laptops/tablets) */
+  @media (max-width: 1024px) and (min-width: 768px) {
+    .dashboard-section {
+      flex-direction: column;
+    }
+    .home, .cities, .feeds {
+      width: 100%;
+    }
+  }
+  
+  /* Small screens (phones) */
+  @media (max-width: 768px) {
+    .dashboard-section {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .home, .cities, .feeds {
+      width: 100%;
+    }
+    .feeds img {
+      width: 100px; /* Scale down images */
+    }
+  }
+  

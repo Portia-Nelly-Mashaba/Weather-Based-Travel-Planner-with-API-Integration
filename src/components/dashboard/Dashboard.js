@@ -1,5 +1,5 @@
-import React from 'react'
-import './Dashboard.css'
+import React from 'react';
+import './Dashboard.css';
 import sunCloudy from "../../assets/sun-cloudy.png";
 import Rain from "../../assets/rain.png";
 import PartlySunny from "../../assets/partly-sunny.png";
@@ -7,6 +7,7 @@ import SunWindy from "../../assets/sun-windy.png";
 import Compass from "../../assets/compass.png";
 import Drops from "../../assets/drops.png";
 import Ultraviolet from "../../assets/ultraviolet.png";
+import Map from "../../assets/google_map.png";
 
 const Dashboard = () => {
   return (
@@ -14,7 +15,7 @@ const Dashboard = () => {
       <div className="home">
         <div className="feed-1">
           <div className="feeds">
-            <img src={sunCloudy} alt="" />
+            <img src={sunCloudy} alt="Sun Cloudy" />
             <div>
               <div>
                 <span>London, UK</span>
@@ -28,131 +29,80 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="feed">
-            <div>
-              <div>
-                <img src={PartlySunny} alt="" />
-                <span>
-                  14 <sup>o</sup>
-                </span>
-              </div>
-              <div>
-                <span>Saturday</span>
-                <span>Sun</span>
-              </div>
-            </div>
-            <div>
-              <div>
-                <img src={SunWindy} alt="" />
-                <span>
-                  16 <sup>o</sup>
-                </span>
-              </div>
-              <div>
-                <span>Saturday</span>
-                <span>Wind</span>
-              </div>
-            </div>
+            <img src={Map} alt="Google Map" />
           </div>
         </div>
         <div className="highlights">
-          <h2>Today's Highlights</h2>
+          <h2>Today's Activities</h2>
           <div className="all-highlights">
             <div>
               <div>
-                <img src={Compass} alt="" />
+                <img src={Compass} alt="Compass" />
                 <div>
-                  <span>Feel Like</span>
-                  <span>Normal</span>
+                  <span>Hiking</span>
+                  <span>Pretoria</span>
                 </div>
-              </div>
-              <div>
-                <span>
-                  7 <sup>o</sup>
-                </span>
               </div>
             </div>
             <div>
               <div>
-                <img src={sunCloudy} alt="" />
+                <img src={sunCloudy} alt="Cloudy" />
                 <div>
-                  <span>Cloud</span>
-                  <span>Heave</span>
+                  <span>Swimming</span>
+                  <span>Hatfield</span>
                 </div>
-              </div>
-              <div>
-                <span>
-                  18 <sup>o</sup>
-                </span>
               </div>
             </div>
             <div>
               <div>
-                <img src={Rain} alt="" />
+                <img src={Rain} alt="Rain" />
                 <div>
-                  <span>Rain</span>
-                  <span>Normal</span>
+                  <span>Quad-Biking</span>
+                  <span>Menlyn</span>
                 </div>
-              </div>
-              <div>
-                <span>
-                  2 <sup>o</sup>
-                </span>
               </div>
             </div>
             <div>
               <div>
-                <img src={Drops} alt="" />
+                <img src={Drops} alt="Drops" />
                 <div>
-                  <span>Humidity</span>
-                  <span>Heavy</span>
+                  <span>Swimming</span>
+                  <span>Menlyn</span>
                 </div>
-              </div>
-              <div>
-                <span>
-                  65 <sup>o</sup>
-                </span>
               </div>
             </div>
             <div>
               <div>
-                <img src={Ultraviolet} alt="" />
+                <img src={Ultraviolet} alt="Ultraviolet" />
                 <div>
-                  <span>Ultraviolet</span>
-                  <span>Heavy</span>
+                  <span>Hiking</span>
+                  <span>Pretoria</span>
                 </div>
-              </div>
-              <div>
-                <span>
-                  7 <sup>o</sup>
-                </span>
               </div>
             </div>
             <div>
               <div>
-                <img src={PartlySunny} alt="" />
+                <img src={PartlySunny} alt="Partly Sunny" />
                 <div>
-                  <span>Cloudy</span>
-                  <span>Normal</span>
+                  <span>Kitting</span>
+                  <span>Sunnyside</span>
                 </div>
-              </div>
-              <div>
-                <span>
-                  26 <sup>km/h</sup>
-                </span>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div className="cities">
-        <h2>Other Cities</h2>
+        <h2>Other Activities</h2>
         <div className="all-cities">
           <div>
             <div>
-              <img src={sunCloudy} alt="" />
+              <img src={sunCloudy} alt="Cloudy Weather" />
               <div>
-                <span>Manchester</span>
-                <span>Cloudy. High: 11° Low: 18°</span>
+                <span>Monday date</span>
+                <span>
+                  Cloudy. Low: 18° <br /> Hiking <br /> Swimming
+                </span>
               </div>
             </div>
             <div>
@@ -163,10 +113,12 @@ const Dashboard = () => {
           </div>
           <div>
             <div>
-              <img src={Rain} alt="" />
+              <img src={Rain} alt="Rainy Weather" />
               <div>
-                <span>Edinburgh</span>
-                <span>Rain. High: 8° Low: 12°</span>
+                <span>Tuesday</span>
+                <span>
+                  Rain. Low: 12° <br /> Hiking <br /> Swimming
+                </span>
               </div>
             </div>
             <div>
@@ -177,29 +129,17 @@ const Dashboard = () => {
           </div>
           <div>
             <div>
-              <img src={Rain} alt="" />
+              <img src={Rain} alt="Snow Weather" />
               <div>
-                <span>Bristol</span>
-                <span>Snow. High: 2° Low: 8°</span>
+                <span>Wednesday</span>
+                <span>
+                  Snow. Low: 8° <br /> Hiking <br /> Swimming
+                </span>
               </div>
             </div>
             <div>
               <span>
                 22 <sup>o</sup>
-              </span>
-            </div>
-          </div>
-          <div>
-            <div>
-              <img src={sunCloudy} alt="" />
-              <div>
-                <span>York</span>
-                <span>Cloudy. High: 10° Low: 18°</span>
-              </div>
-            </div>
-            <div>
-              <span>
-                20 <sup>o</sup>
               </span>
             </div>
           </div>
@@ -210,7 +150,7 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

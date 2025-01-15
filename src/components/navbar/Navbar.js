@@ -13,25 +13,18 @@ const Navbar = () => {
             <span>Home</span>
           </li>
           <li>
-            <ion-icon name="newspaper-outline"></ion-icon>
-            <span>Blogs</span>
+            <ion-icon name="bicycle-outline"></ion-icon>
+            <span>Activities</span>
           </li>
           <li>
             <ion-icon name="locate-outline"></ion-icon>
             <span>Map</span>
           </li>
           <li>
-            <ion-icon name="camera-outline"></ion-icon>
-            <span>Photos</span>
+            <ion-icon name="star-outline"></ion-icon>
+            <span>Favorite</span>
           </li>
-          <li>
-            <ion-icon name="videocam-outline"></ion-icon>
-            <span>Videos</span>
-          </li>
-          <li>
-            <ion-icon name="call-outline"></ion-icon>
-            <span>Phone</span>
-          </li>
+          
         </ul>
         <ul>
           <li>
