@@ -1,0 +1,27 @@
+.map-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: transparent; /* Transparent background */
+    text-align: center;
+  }
+  
+  .map-wrapper {
+    position: relative;
+    width: 80%;
+    max-width: 800px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1); /* Light translucent overlay */
+  }
+  
+  .map-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+  
