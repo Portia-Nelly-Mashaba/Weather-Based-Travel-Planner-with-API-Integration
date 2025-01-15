@@ -38,8 +38,9 @@ app.use(express.json());
 // In the backend, modify the /weather route to send the needed information:
 
 // Updated /weather route
+// Weather endpoint
 app.get('/weather', async (req, res) => {
-  const location = req.query.location || 'Johannesburg'; // Default to Johannesburg
+  const location = req.query.location || 'Johannesburg'; // Default location
   const weatherApiKey = process.env.WEATHER_API_KEY;
 
   if (!weatherApiKey) {
@@ -53,15 +54,14 @@ app.get('/weather', async (req, res) => {
     const cityName = response.data.name;
     const tempInCelsius = response.data.main.temp;
     const tempInWords = getTemperatureInWords(tempInCelsius);
-    const activities = getActivities(tempInCelsius);
 
     res.json({
       cityName,
       cityAbbreviation: cityName.substring(0, 3).toUpperCase(),
       tempInWords,
       tempInCelsius,
-      mapUrl: `https://www.google.com/maps?q=${response.data.coord.lat},${response.data.coord.lon}&z=12`,
-      activities, // Added activities
+      lat: response.data.coord.lat, // Latitude
+      lon: response.data.coord.lon, // Longitude
     });
   } catch (error) {
     console.error(error.message);
@@ -69,7 +69,7 @@ app.get('/weather', async (req, res) => {
   }
 });
 
-// Helper function to convert temperature to words
+// Helper function to convert temperature into descriptive words
 const getTemperatureInWords = (temp) => {
   if (temp < 0) return "Freezing";
   if (temp < 10) return "Cold";
