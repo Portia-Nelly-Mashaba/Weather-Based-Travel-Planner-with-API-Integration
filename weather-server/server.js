@@ -13,26 +13,66 @@ app.use(cors());
 app.use(express.json());
 
 // Weather API endpoint
+// app.get('/weather', async (req, res) => {
+//   // Hardcoded coordinates for Johannesburg
+//   const lat = -26.2041;
+//   const lon = 28.0473;
+
+//   try {
+//     const weatherApiKey = process.env.WEATHER_API_KEY;
+//     if (!weatherApiKey) {
+//       return res.status(500).send('Weather API Key not found in environment variables');
+//     }
+
+//     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
+
+//     const response = await axios.get(weatherUrl);
+//     res.json(response.data);
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).send('Error fetching weather data');
+//   }
+// });
+// In the backend, modify the /weather route to send the needed information:
+
 app.get('/weather', async (req, res) => {
-  // Hardcoded coordinates for Johannesburg
-  const lat = -26.2041;
-  const lon = 28.0473;
+  const location = req.query.location || 'Johannesburg'; // Default to Johannesburg if no location is provided
+  const weatherApiKey = process.env.WEATHER_API_KEY;
+
+  if (!weatherApiKey) {
+    return res.status(500).send('Weather API Key not found in environment variables');
+  }
 
   try {
-    const weatherApiKey = process.env.WEATHER_API_KEY;
-    if (!weatherApiKey) {
-      return res.status(500).send('Weather API Key not found in environment variables');
-    }
-
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
-
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${weatherApiKey}&units=metric`;
     const response = await axios.get(weatherUrl);
-    res.json(response.data);
+
+    const cityName = response.data.name;
+    const tempInWords = getTemperatureInWords(response.data.main.temp); // Function to convert temp to words
+
+    res.json({
+      cityName,
+      cityAbbreviation: cityName.substring(0, 3).toUpperCase(), // Abbreviation from first 3 letters
+      tempInWords,
+      tempInCelsius: response.data.main.temp,
+      mapUrl: `https://www.google.com/maps?q=${response.data.coord.lat},${response.data.coord.lon}&z=12`
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Error fetching weather data');
   }
 });
+
+// Helper function to convert temperature to words
+const getTemperatureInWords = (temp) => {
+  if (temp < 0) return "Freezing";
+  if (temp < 10) return "Cold";
+  if (temp < 20) return "Cool";
+  if (temp < 30) return "Warm";
+  return "Hot";
+};
+
+
 
 // Map API endpoint (Google Maps)
 app.get('/map', async (req, res) => {
