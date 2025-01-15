@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const app = express();
@@ -12,33 +13,10 @@ app.use(cors());
 // Middleware for parsing JSON
 app.use(express.json());
 
-
+// In-memory user storage (for demonstration purposes only)
+const users = [];
 
 // Weather API endpoint
-// app.get('/weather', async (req, res) => {
-//   // Hardcoded coordinates for Johannesburg
-//   const lat = -26.2041;
-//   const lon = 28.0473;
-
-//   try {
-//     const weatherApiKey = process.env.WEATHER_API_KEY;
-//     if (!weatherApiKey) {
-//       return res.status(500).send('Weather API Key not found in environment variables');
-//     }
-
-//     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
-
-//     const response = await axios.get(weatherUrl);
-//     res.json(response.data);
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).send('Error fetching weather data');
-//   }
-// });
-// In the backend, modify the /weather route to send the needed information:
-
-// Updated /weather route
-// Weather endpoint
 app.get('/weather', async (req, res) => {
   const location = req.query.location || 'Johannesburg'; // Default location
   const weatherApiKey = process.env.WEATHER_API_KEY;
@@ -78,38 +56,6 @@ const getTemperatureInWords = (temp) => {
   return "Hot";
 };
 
-// Helper function to suggest activities
-const getActivities = (temp) => {
-  if (temp < 0) {
-    return [
-      { activity: "Skiing", location: "Snow Resort", mapUrl: "https://www.google.com/maps?q=snow+resort" },
-      { activity: "Ice Skating", location: "Ice Arena", mapUrl: "https://www.google.com/maps?q=ice+arena" },
-    ];
-  } else if (temp < 10) {
-    return [
-      { activity: "Hot Chocolate Tasting", location: "Cafe Central", mapUrl: "https://www.google.com/maps?q=cafe+central" },
-      { activity: "Indoor Movie Marathon", location: "Cinema Park", mapUrl: "https://www.google.com/maps?q=cinema+park" },
-    ];
-  } else if (temp < 20) {
-    return [
-      { activity: "Hiking", location: "Green Hill", mapUrl: "https://www.google.com/maps?q=green+hill" },
-      { activity: "Cycling", location: "City Park", mapUrl: "https://www.google.com/maps?q=city+park" },
-    ];
-  } else if (temp < 30) {
-    return [
-      { activity: "Swimming", location: "Beach Paradise", mapUrl: "https://www.google.com/maps?q=beach+paradise" },
-      { activity: "Outdoor Yoga", location: "Sunset Gardens", mapUrl: "https://www.google.com/maps?q=sunset+gardens" },
-    ];
-  } else {
-    return [
-      { activity: "Water Park Visit", location: "Splash World", mapUrl: "https://www.google.com/maps?q=splash+world" },
-      { activity: "Beach Volleyball", location: "Sunny Beach", mapUrl: "https://www.google.com/maps?q=sunny+beach" },
-    ];
-  }
-};
-
-
-
 // Map API endpoint (Google Maps)
 app.get('/map', async (req, res) => {
   const { location } = req.query;
@@ -124,19 +70,12 @@ app.get('/map', async (req, res) => {
       return res.status(500).send('Google Maps API Key not found in environment variables');
     }
 
-    // Google Maps API URL to get geocode data for the given location
     const mapUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${mapApiKey}`;
-
     const response = await axios.get(mapUrl);
 
-    // Log the response to see what is returned
-    console.log('Google Maps API Response:', response.data);
-
-    // Get the first result from the Google Maps geocoding API
     if (response.data.results.length > 0) {
       const locationData = response.data.results[0].geometry.location;
 
-      // Create a Google Maps URL with a marker at the location
       const googleMapUrl = `https://www.google.com/maps?q=${locationData.lat},${locationData.lng}&z=12`;
 
       res.json({
@@ -150,6 +89,45 @@ app.get('/map', async (req, res) => {
     console.error(error.message);
     res.status(500).send('Error fetching map data');
   }
+});
+
+// Login endpoint
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if the user exists
+  const user = users.find((u) => u.email === email);
+  if (!user) {
+    return res.status(400).json({ error: 'User not found' });
+  }
+
+  // Validate password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(400).json({ error: 'Invalid password' });
+  }
+
+  res.json({ message: 'Login successful', email: user.email });
+});
+
+// Signup endpoint
+app.post('/signup', async (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if the email is already in use
+  const existingUser = users.find((u) => u.email === email);
+  if (existingUser) {
+    return res.status(400).json({ error: 'Email already in use' });
+  }
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Add the new user to the in-memory storage
+  const newUser = { email, password: hashedPassword };
+  users.push(newUser);
+
+  res.status(201).json({ message: 'User registered successfully' });
 });
 
 // Start the server
