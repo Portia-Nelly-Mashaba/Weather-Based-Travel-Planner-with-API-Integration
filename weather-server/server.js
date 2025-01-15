@@ -12,6 +12,8 @@ app.use(cors());
 // Middleware for parsing JSON
 app.use(express.json());
 
+
+
 // Weather API endpoint
 // app.get('/weather', async (req, res) => {
 //   // Hardcoded coordinates for Johannesburg
@@ -52,7 +54,7 @@ app.get('/weather', async (req, res) => {
 
     res.json({
       cityName,
-      cityAbbreviation: cityName.substring(0, 3).toUpperCase(), // Abbreviation from first 3 letters
+      cityAbbreviation: cityName.substring(0, 3).toUpperCase(),
       tempInWords,
       tempInCelsius: response.data.main.temp,
       mapUrl: `https://www.google.com/maps?q=${response.data.coord.lat},${response.data.coord.lon}&z=12`
@@ -62,6 +64,7 @@ app.get('/weather', async (req, res) => {
     res.status(500).send('Error fetching weather data');
   }
 });
+
 
 // Helper function to convert temperature to words
 const getTemperatureInWords = (temp) => {
