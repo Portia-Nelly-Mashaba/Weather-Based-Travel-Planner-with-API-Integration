@@ -14,7 +14,7 @@ const header = () => {
       </div>
       <div>
         <ion-icon name="calendar-outline"></ion-icon>
-        <ion-icon name="notifications-outline"></ion-icon>
+        <ion-icon name="star-outline"></ion-icon>
       </div>
     </div>
   )

@@ -1,30 +1,38 @@
 import React from "react";
+import { NavLink } from "react-router-dom"; // Use NavLink for active styling
 import logo from "../../assets/logo.png";
-import './Navbar.css'
+import "./Navbar.css";
 
 const Navbar = () => {
   return (
     <div className="nav-section">
       <nav>
-        <img src={logo} alt="" />
+        <img src={logo} alt="Logo" />
         <ul>
           <li>
             <ion-icon name="home-outline"></ion-icon>
-            <span>Home</span>
+            <NavLink to="/" activeClassName="active-link" exact>
+              Home
+            </NavLink>
           </li>
           <li>
             <ion-icon name="bicycle-outline"></ion-icon>
-            <span>Activities</span>
+            <NavLink to="/activities" activeClassName="active-link">
+              Activities
+            </NavLink>
           </li>
           <li>
             <ion-icon name="locate-outline"></ion-icon>
-            <span>Map</span>
+            <NavLink to="/map" activeClassName="active-link">
+              Map
+            </NavLink>
           </li>
           <li>
             <ion-icon name="star-outline"></ion-icon>
-            <span>Favorite</span>
+            <NavLink to="/favorite" activeClassName="active-link">
+              Favorite
+            </NavLink>
           </li>
-          
         </ul>
         <ul>
           <li>

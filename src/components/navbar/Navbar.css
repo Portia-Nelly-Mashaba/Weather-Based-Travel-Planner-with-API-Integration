@@ -53,3 +53,22 @@
   .nav-section nav ul li:hover {
     color: #409ac7;
   }
+
+  /* Remove underline from links */
+.nav-section nav ul li a {
+  text-decoration: none;
+  color: inherit; /* Inherit text color from parent */
+  transition: color 0.3s ease;
+}
+
+/* Hover effect */
+.nav-section nav ul li a:hover {
+  color: #409ac7; /* Hover color */
+}
+
+/* Active link styling */
+.nav-section nav ul li .active-link {
+  color: #409ac7; /* Active tab color */
+  font-weight: bold; /* Highlight active tab */
+  border-bottom: 2px solid #409ac7; /* Optional underline for active tab */
+}
