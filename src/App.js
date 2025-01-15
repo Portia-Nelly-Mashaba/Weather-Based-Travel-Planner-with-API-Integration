@@ -5,6 +5,7 @@ import Header from "./components/header/Header";
 import Dashboard from "./components/dashboard/Dashboard";
 import Activities from "./components/activities/Activities";
 import Map from "./components/map/Map";
+import Favorite from "./components/favorite/favorite";
 
 
 const App = () => {
@@ -17,7 +18,7 @@ const App = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/activities" element={<Activities />} />
           <Route path="/map" element={<Map />} />
-          {/* <Route path="/favorite" element={<Favorite />} /> */}
+          <Route path="/favorite" element={<Favorite />} />
         </Routes>
       </div>
     </Router>
