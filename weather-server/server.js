@@ -11,7 +11,7 @@ app.use(cors());
 
 // Middleware for parsing JSON
 app.use(express.json());
-ah
+
 
 
 // Weather API endpoint
