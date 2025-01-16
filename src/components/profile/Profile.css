@@ -1,0 +1,36 @@
+/* Profile.css */
+.profile-container {
+    background-color: #f4f6f8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    font-family: Arial, sans-serif;
+  }
+  
+  .profile-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .logout-button {
+    padding: 12px 20px;
+    border-radius: 5px;
+    background-color: #ff6347; /* Tomato color */
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logout-button:hover {
+    background-color: #e5533f;
+  }
+  
+  .logout-button:focus {
+    outline:none;
+  }

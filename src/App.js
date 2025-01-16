@@ -2,9 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
 import Dashboard from "./components/dashboard/Dashboard";
-import Activities from "./components/activities/Activities";
-import Map from "./components/map/Map";
 import Favorite from "./components/favorite/favorite";
+import LoginSignup from "./components/login/login";
+import Profile from "./components/profile/Profile";
 
 
 const App = () => {
@@ -14,9 +14,9 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/activities" element={<Activities />} />
-          <Route path="/map" element={<Map />} />
           <Route path="/favorite" element={<Favorite />} />
+          <Route path="/login" element={<LoginSignup />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </Router>

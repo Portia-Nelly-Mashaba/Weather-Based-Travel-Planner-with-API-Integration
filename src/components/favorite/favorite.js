@@ -1,34 +1,48 @@
-import React from "react";
-import "./../favorite/favorite.css";
+import React, { useState, useEffect } from 'react';
+import { getAuth } from 'firebase/auth';
+import { getDatabase, ref, onValue } from 'firebase/database';
+import './Favorite.css';
 
 const Favorite = () => {
-  const favoritePlaces = [
-    { name: "London", weather: "Cloudy", date: "2025-01-15" },
-    { name: "New York", weather: "Sunny", date: "2025-01-14" },
-    { name: "Tokyo", weather: "Rainy", date: "2025-01-13" },
-  ];
+  const [favorites, setFavorites] = useState([]);
+  const auth = getAuth();
+  const db = getDatabase();
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (user) {
+      const favoritesRef = ref(db, 'favorites');
+      onValue(favoritesRef, (snapshot) => {
+        const data = snapshot.val();
+        const userFavorites = [];
+        
+        for (let id in data) {
+          if (data[id].username === user.email) {
+            userFavorites.push(data[id]);
+          }
+        }
+
+        setFavorites(userFavorites);
+      });
+    }
+  }, [auth]);
 
   return (
     <div className="favorite-container">
-      <h2>My Favorite Places</h2>
-      <table className="favorite-table">
-        <thead>
-          <tr>
-            <th>Place Name</th>
-            <th>Weather</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {favoritePlaces.map((place, index) => (
-            <tr key={index}>
-              <td>{place.name}</td>
-              <td>{place.weather}</td>
-              <td>{place.date}</td>
-            </tr>
+      <h2>Your Favorite Places</h2>
+      {favorites.length === 0 ? (
+        <p>No favorites added yet.</p>
+      ) : (
+        <ul>
+          {favorites.map((favorite, index) => (
+            <li key={index}>
+              <h3>{favorite.place}</h3>
+              <p>{favorite.date}</p>
+              <a href={favorite.mapLink} target="_blank" rel="noopener noreferrer">View on Map</a>
+            </li>
           ))}
-        </tbody>
-      </table>
+        </ul>
+      )}
     </div>
   );
 };

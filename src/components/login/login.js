@@ -139,4 +139,3 @@ const styles = {
 };
 
 export default LoginSignup;
-

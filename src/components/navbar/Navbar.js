@@ -16,21 +16,15 @@ const Navbar = () => {
             </NavLink>
           </li>
           <li>
-            <ion-icon name="bicycle-outline"></ion-icon>
-            <NavLink to="/activities" activeClassName="active-link">
-              Activities
-            </NavLink>
-          </li>
-          <li>
-            <ion-icon name="locate-outline"></ion-icon>
-            <NavLink to="/map" activeClassName="active-link">
-              Map
+            <ion-icon name="star-outline"></ion-icon>
+            <NavLink to="/favorite" activeClassName="active-link">
+              Favorite
             </NavLink>
           </li>
           <li>
             <ion-icon name="star-outline"></ion-icon>
-            <NavLink to="/favorite" activeClassName="active-link">
-              Favorite
+            <NavLink to="/profile" activeClassName="active-link">
+              Profile
             </NavLink>
           </li>
         </ul>

@@ -1,29 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import './Dashboard.css';
-import Header from '../header/Header';
-import sunCloudy from '../../assets/sun-cloudy.png';
-import Rain from '../../assets/rain.png';
-import PartlySunny from '../../assets/partly-sunny.png';
-import SunWindy from '../../assets/sun-windy.png';
-import emoji from 'emoji-dictionary';
+import React, { useState } from "react";
+import "./Dashboard.css";
+import Header from "../header/Header";
+import sunCloudy from "../../assets/sun-cloudy.png";
+import Rain from "../../assets/rain.png";
+import PartlySunny from "../../assets/partly-sunny.png";
+import Map from "./../../assets/google_map.png";
+import SunWindy from "../../assets/sun-windy.png";
+import emoji from "emoji-dictionary";
 
 const Dashboard = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [places, setPlaces] = useState([]); // State to store nearby places
 
   const handleSearch = async (location) => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const response = await fetch(`http://localhost:5000/weather?location=${location}`);
+      const response = await fetch(
+        `http://localhost:5000/weather?location=${location}`
+      );
       if (!response.ok) {
-        throw new Error('Failed to fetch weather data');
+        throw new Error("Failed to fetch weather data");
       }
       const data = await response.json();
-      console.log('Weather data:', data); // Log weather data
+      console.log("Weather data:", data); // Log weather data
       setWeatherData(data);
+
+      // Fetch 4-day weather forecast
+      fetchWeatherData(data.lat, data.lon);
 
       // Fetch nearby outdoor activity locations
       fetchPlaces(data.lat, data.lon);
@@ -36,33 +42,36 @@ const Dashboard = () => {
 
   const fetchPlaces = async (lat, lon) => {
     try {
-      const types = ['shopping_mall', 'library', 'museum', 'hotel'];
-      const promises = types.map(type =>
-        fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=5000&type=${type}&key=YOUR_GOOGLE_API_KEY`)
-          .then(response => response.json())
+      const types = ["shopping_mall", "library", "museum", "hotel"];
+      const promises = types.map((type) =>
+        fetch(
+          `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=5000&type=${type}&key=WEATHER_API_KEY`
+        ).then((response) => response.json())
       );
       const results = await Promise.all(promises);
-      const placesData = results.flatMap(result => result.results.map(place => ({
-        name: place.name,
-        lat: place.geometry.location.lat,
-        lng: place.geometry.location.lng,
-      })));
-      console.log('Places data:', placesData); // Log places data
+      const placesData = results.flatMap((result) =>
+        result.results.map((place) => ({
+          name: place.name,
+          lat: place.geometry.location.lat,
+          lng: place.geometry.location.lng,
+        }))
+      );
+      console.log("Places data:", placesData); // Log places data
       setPlaces(placesData);
     } catch (error) {
-      console.error('Error fetching places data:', error);
+      console.error("Error fetching places data:", error);
     }
   };
 
   const getImageByTemperature = (tempInWords) => {
     switch (tempInWords) {
-      case 'Freezing':
-      case 'Cold':
+      case "Freezing":
+      case "Cold":
         return Rain;
-      case 'Cool':
+      case "Cool":
         return PartlySunny;
-      case 'Warm':
-      case 'Hot':
+      case "Warm":
+      case "Hot":
         return SunWindy;
       default:
         return sunCloudy;
@@ -72,37 +81,37 @@ const Dashboard = () => {
   const getActivitiesByWeather = (tempInWords) => {
     const activities = {
       Freezing: [
-        `Shopping ${emoji.getUnicode('shopping_bags')}`,
-        `Dining ${emoji.getUnicode('fork_and_knife')}`,
-        `Museum Visit ${emoji.getUnicode('classical_building')}`,
-        `Cinema ${emoji.getUnicode('clapper')}`,
-        `Library ${emoji.getUnicode('books')}`,
+        `Shopping ${emoji.getUnicode("shopping_bags")}`,
+        `Dining ${emoji.getUnicode("fork_and_knife")}`,
+        `Museum Visit ${emoji.getUnicode("classical_building")}`,
+        `Cinema ${emoji.getUnicode("clapper")}`,
+        `Library ${emoji.getUnicode("books")}`,
       ],
       Cold: [
-        `Sightseeing ${emoji.getUnicode('camera')}`,
-        `Relaxing ${emoji.getUnicode('relaxed')}`,
-        `Indoor Fitness ${emoji.getUnicode('muscle')}`,
-        `Nightlife ${emoji.getUnicode('night_with_stars')}`,
+        `Sightseeing ${emoji.getUnicode("camera")}`,
+        `Relaxing ${emoji.getUnicode("relaxed")}`,
+        `Indoor Fitness ${emoji.getUnicode("muscle")}`,
+        `Nightlife ${emoji.getUnicode("night_with_stars")}`,
       ],
       Cool: [
-        `Sightseeing ${emoji.getUnicode('camera')}`,
-        `Hiking ${emoji.getUnicode('boot')}`,
-        `Yoga ${emoji.getUnicode('woman_in_lotus_position')}`,
-        `Outdoor Café ${emoji.getUnicode('coffee')}`,
-        `Park Lounging ${emoji.getUnicode('deciduous_tree')}`,
+        `Sightseeing ${emoji.getUnicode("camera")}`,
+        `Hiking ${emoji.getUnicode("boot")}`,
+        `Yoga ${emoji.getUnicode("woman_in_lotus_position")}`,
+        `Outdoor Café ${emoji.getUnicode("coffee")}`,
+        `Park Lounging ${emoji.getUnicode("deciduous_tree")}`,
       ],
       Warm: [
-        `Swimming ${emoji.getUnicode('swimmer')}`,
-        `Picnic ${emoji.getUnicode('basket')}`,
-        `City Tour ${emoji.getUnicode('building_construction')}`,
-        `Kayaking ${emoji.getUnicode('canoe')}`,
-        `Garden Visit ${emoji.getUnicode('seedling')}`,
+        `Swimming ${emoji.getUnicode("swimmer")}`,
+        `Picnic ${emoji.getUnicode("basket")}`,
+        `City Tour ${emoji.getUnicode("building_construction")}`,
+        `Kayaking ${emoji.getUnicode("canoe")}`,
+        `Garden Visit ${emoji.getUnicode("seedling")}`,
       ],
       Hot: [
-        `Beach Day ${emoji.getUnicode('beach_with_umbrella')}`,
-        `Pool Relaxation ${emoji.getUnicode('umbrella_on_ground')}`,
-        `Evening Sightseeing ${emoji.getUnicode('city_sunset')}`,
-        `Outdoor Barbecue ${emoji.getUnicode('meat_on_bone')}`,
+        `Beach Day ${emoji.getUnicode("beach_with_umbrella")}`,
+        `Pool Relaxation ${emoji.getUnicode("umbrella_on_ground")}`,
+        `Evening Sightseeing ${emoji.getUnicode("city_sunset")}`,
+        `Outdoor Barbecue ${emoji.getUnicode("meat_on_bone")}`,
       ],
     };
     return activities[tempInWords] || [];
@@ -115,9 +124,11 @@ const Dashboard = () => {
   // Function to fetch weather data for 4 days
   const fetchWeatherData = async (lat, lon) => {
     try {
-      const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&cnt=4&units=metric&appid=YOUR_API_KEY`);
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&cnt=WEATHER_API_KEY`
+      );
       const data = await response.json();
-      console.log('Forecast data:', data); // Log forecast data
+      console.log("Forecast data:", data); // Log forecast data
       const forecast = data.list.map((item) => ({
         date: new Date(item.dt * 1000).toISOString(),
         low: item.main.temp_min,
@@ -127,14 +138,9 @@ const Dashboard = () => {
       }));
       setWeatherData((prevData) => ({ ...prevData, forecast }));
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.error("Error fetching weather data:", error);
     }
   };
-
-  useEffect(() => {
-    // Initial fetch for a default location
-    handleSearch('Johannesburg');
-  }, []);
 
   return (
     <div>
@@ -149,7 +155,9 @@ const Dashboard = () => {
                 <img src={sunCloudy} alt="" />
                 <div>
                   <div>
-                    <span>{weatherData.cityName}, ({weatherData.cityAbbreviation})</span>
+                    <span>
+                      {weatherData.cityName}, ({weatherData.cityAbbreviation})
+                    </span>
                     <span>{weatherData.tempInWords}</span>
                   </div>
                   <div>
@@ -160,18 +168,28 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="feed">
-                <img src={getImageByTemperature(weatherData.tempInWords)} alt="Weather Icon" />
+                {" "}
+                <a
+                  href={`https://www.google.com/maps?q=${weatherData.lat},${weatherData.lon}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {" "}
+                  <img src={Map} alt="Google Map" />{" "}
+                </a>{" "}
               </div>
             </div>
 
             <div className="highlights">
               <h2>Today's Activities</h2>
               <div className="all-highlights">
-                {getActivitiesByWeather(weatherData.tempInWords).map((activity, index) => (
-                  <div key={index} className="activity-item">
-                    <span>{activity}</span>
-                  </div>
-                ))}
+                {getActivitiesByWeather(weatherData.tempInWords).map(
+                  (activity, index) => (
+                    <div key={index} className="activity-item">
+                      <span>{activity}</span>
+                    </div>
+                  )
+                )}
               </div>
             </div>
 
@@ -206,7 +224,11 @@ const Dashboard = () => {
                       <div>
                         <img src={day.icon} alt="Weather Icon" />
                         <div>
-                          <span>{new Date(day.date).toLocaleDateString(undefined, { weekday: 'long' })}</span>
+                          <span>
+                            {new Date(day.date).toLocaleDateString(undefined, {
+                              weekday: "long",
+                            })}
+                          </span>
                           <span>
                             {day.weather}. Low: {day.low}°C | High: {day.high}°C
                           </span>
