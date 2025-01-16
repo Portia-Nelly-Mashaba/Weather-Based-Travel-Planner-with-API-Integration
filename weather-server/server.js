@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const app = express();
@@ -12,7 +13,8 @@ app.use(cors());
 // Middleware for parsing JSON
 app.use(express.json());
 
-
+// In-memory user storage (for demonstration purposes only)
+const users = [];
 
 // Weather API endpoint
 app.get('/weather', async (req, res) => {
@@ -63,6 +65,7 @@ const getTemperatureInWords = (temp) => {
   return 'Hot';
 };
 
+<<<<<<< HEAD
 // Activities API
 app.get('/activities', (req, res) => {
   const temp = parseFloat(req.query.temperature);
@@ -105,6 +108,8 @@ const getActivities = (temp) => {
 
 
 
+=======
+>>>>>>> d82e7a3c1ad7c3d776dc81d431c37f36d5fa260a
 // Map API endpoint (Google Maps)
 app.get('/map', async (req, res) => {
   const { location } = req.query;
@@ -119,19 +124,12 @@ app.get('/map', async (req, res) => {
       return res.status(500).send('Google Maps API Key not found in environment variables');
     }
 
-    // Google Maps API URL to get geocode data for the given location
     const mapUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${mapApiKey}`;
-
     const response = await axios.get(mapUrl);
 
-    // Log the response to see what is returned
-    console.log('Google Maps API Response:', response.data);
-
-    // Get the first result from the Google Maps geocoding API
     if (response.data.results.length > 0) {
       const locationData = response.data.results[0].geometry.location;
 
-      // Create a Google Maps URL with a marker at the location
       const googleMapUrl = `https://www.google.com/maps?q=${locationData.lat},${locationData.lng}&z=12`;
 
       res.json({
@@ -145,6 +143,45 @@ app.get('/map', async (req, res) => {
     console.error(error.message);
     res.status(500).send('Error fetching map data');
   }
+});
+
+// Login endpoint
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if the user exists
+  const user = users.find((u) => u.email === email);
+  if (!user) {
+    return res.status(400).json({ error: 'User not found' });
+  }
+
+  // Validate password
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(400).json({ error: 'Invalid password' });
+  }
+
+  res.json({ message: 'Login successful', email: user.email });
+});
+
+// Signup endpoint
+app.post('/signup', async (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if the email is already in use
+  const existingUser = users.find((u) => u.email === email);
+  if (existingUser) {
+    return res.status(400).json({ error: 'Email already in use' });
+  }
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Add the new user to the in-memory storage
+  const newUser = { email, password: hashedPassword };
+  users.push(newUser);
+
+  res.status(201).json({ message: 'User registered successfully' });
 });
 
 // Start the server
