@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { getDatabase, ref, onValue } from 'firebase/database';
-import './Favorite.css';
+import './../favorite/Favorite.css';
 
 const Favorite = () => {
   const [favorites, setFavorites] = useState([]);
