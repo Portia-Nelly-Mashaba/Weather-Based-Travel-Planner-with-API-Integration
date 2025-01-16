@@ -11,8 +11,13 @@ import Ultraviolet from '../../assets/ultraviolet.png';
 
 const Dashboard = () => {
   const [weatherData, setWeatherData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [places, setPlaces] = useState([]); // State to store nearby places
 
   const handleSearch = async (location) => {
+    setLoading(true);
+    setError('');
     try {
       const response = await fetch(`http://localhost:5000/weather?location=${location}`);
       if (!response.ok) {
@@ -20,21 +25,29 @@ const Dashboard = () => {
       }
       const data = await response.json();
       setWeatherData(data);
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
+
+      // Fetch nearby outdoor activity locations
+      const placesResponse = await fetch(`http://localhost:5000/map?location=${location}`);
+      if (!placesResponse.ok) {
+        throw new Error('Failed to fetch places data');
+      }
+      const placesData = await placesResponse.json();
+      setPlaces(placesData.locationData); // Assuming `locationData` contains the list of places
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const getImageByTemperature = (tempInWords) => {
     switch (tempInWords) {
       case 'Freezing':
-        return Rain;
       case 'Cold':
         return Rain;
       case 'Cool':
         return PartlySunny;
       case 'Warm':
-        return sunCloudy;
       case 'Hot':
         return SunWindy;
       default:
@@ -42,10 +55,33 @@ const Dashboard = () => {
     }
   };
 
+  const getActivitiesByWeather = (tempInWords) => {
+    switch (tempInWords) {
+      case 'Freezing':
+        return ['Shopping', 'Dining', 'Museum Visit', 'Cinema', 'Library'];
+      case 'Cold':
+        return ['Sightseeing', 'Relaxing', 'Indoor Fitness', 'Nightlife'];
+      case 'Cool':
+        return ['Sightseeing', 'Hiking', 'Yoga', 'Outdoor Café', 'Park Lounging'];
+      case 'Warm':
+        return ['Swimming', 'Picnic', 'City Tour', 'Kayaking', 'Garden Visit'];
+      case 'Hot':
+        return ['Beach Day', 'Pool Relaxation', 'Evening Sightseeing', 'Outdoor Barbecue'];
+      default:
+        return ['Relaxing at Home', 'Reading', 'Netflix'];
+    }
+  };
+
+  const getGoogleMapLink = (lat, lng) => {
+    return `https://www.google.com/maps?q=${lat},${lng}`;
+  };
+
   return (
     <div>
       <Header onSearch={handleSearch} />
       <div className="dashboard-section">
+        {loading && <div>Loading...</div>}
+        {error && <div>Error: {error}</div>}
         {weatherData ? (
           <div className="home">
             <div className="feed-1">
@@ -64,113 +100,63 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="feed">
-              <img src={getImageByTemperature(weatherData.tempInWords)} alt="Weather Icon" />
+                <img src={getImageByTemperature(weatherData.tempInWords)} alt="Weather Icon" />
               </div>
             </div>
+
             <div className="highlights">
               <h2>Today's Activities</h2>
               <div className="all-highlights">
-                <div>
-                  <div>
-                    <img src={Compass} alt="Compass" />
-                    <div>
-                      <span>Hiking</span>
-                      <span>Pretoria</span>
-                    </div>
+                {getActivitiesByWeather(weatherData.tempInWords).map((activity, index) => (
+                  <div key={index} className="activity-item">
+                    <span>{activity}</span>
                   </div>
-                </div>
-                <div>
-                  <div>
-                    <img src={sunCloudy} alt="Cloudy" />
-                    <div>
-                      <span>Swimming</span>
-                      <span>Hatfield</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <img src={Rain} alt="Rain" />
-                    <div>
-                      <span>Quad-Biking</span>
-                      <span>Menlyn</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <img src={Drops} alt="Drops" />
-                    <div>
-                      <span>Swimming</span>
-                      <span>Menlyn</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <img src={Ultraviolet} alt="Ultraviolet" />
-                    <div>
-                      <span>Hiking</span>
-                      <span>Pretoria</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <img src={PartlySunny} alt="Partly Sunny" />
-                    <div>
-                      <span>Knitting</span>
-                      <span>Sunnyside</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
+
+            <div className="places">
+              <h2>Nearby Places for Outdoor Activities</h2>
+              <div className="all-places">
+                {places.length > 0 ? (
+                  places.map((place, index) => (
+                    <div key={index} className="place-item">
+                      <span>{place.name}</span>
+                      <a
+                        href={getGoogleMapLink(place.lat, place.lng)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View on Map
+                      </a>
+                    </div>
+                  ))
+                ) : (
+                  <p>No nearby places found.</p>
+                )}
+              </div>
+            </div>
+
             <div className="cities">
-              <h2>Other Activities</h2>
+              <h2>Weather Forecast</h2>
               <div className="all-cities">
-                <div>
-                  <div>
-                    <img src={sunCloudy} alt="Cloudy Weather" />
-                    <div>
-                      <span>Monday date</span>
-                      <span>
-                        Cloudy. Low: 18° <br /> Hiking <br /> Swimming
-                      </span>
+                {weatherData.forecast && weatherData.forecast.length > 0 ? (
+                  weatherData.forecast.map((day, index) => (
+                    <div key={index}>
+                      <div>
+                        <img src={day.icon} alt="Weather Icon" />
+                        <div>
+                          <span>{new Date(day.date).toLocaleDateString(undefined, { weekday: 'long' })}</span>
+                          <span>
+                            {day.weather}. Low: {day.low}°C | High: {day.high}°C
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <span>7 <sup>o</sup></span>
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <img src={Rain} alt="Rainy Weather" />
-                    <div>
-                      <span>Tuesday</span>
-                      <span>
-                        Rain. Low: 12° <br /> Hiking <br /> Swimming
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span>19 <sup>o</sup></span>
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <img src={Rain} alt="Snow Weather" />
-                    <div>
-                      <span>Wednesday</span>
-                      <span>
-                        Snow. Low: 8° <br /> Hiking <br /> Swimming
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <span>22 <sup>o</sup></span>
-                  </div>
-                </div>
+                  ))
+                ) : (
+                  <p>No forecast available.</p>
+                )}
                 <button>
                   <span>See More</span>
                   <ion-icon name="arrow-forward-outline"></ion-icon>

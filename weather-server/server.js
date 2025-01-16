@@ -15,32 +15,8 @@ app.use(express.json());
 
 
 // Weather API endpoint
-// app.get('/weather', async (req, res) => {
-//   // Hardcoded coordinates for Johannesburg
-//   const lat = -26.2041;
-//   const lon = 28.0473;
-
-//   try {
-//     const weatherApiKey = process.env.WEATHER_API_KEY;
-//     if (!weatherApiKey) {
-//       return res.status(500).send('Weather API Key not found in environment variables');
-//     }
-
-//     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${weatherApiKey}&units=metric`;
-
-//     const response = await axios.get(weatherUrl);
-//     res.json(response.data);
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).send('Error fetching weather data');
-//   }
-// });
-// In the backend, modify the /weather route to send the needed information:
-
-// Updated /weather route
-// Weather endpoint
 app.get('/weather', async (req, res) => {
-  const location = req.query.location || 'Johannesburg'; // Default location
+  const location = req.query.location || 'Johannesburg';
   const weatherApiKey = process.env.WEATHER_API_KEY;
 
   if (!weatherApiKey) {
@@ -48,20 +24,29 @@ app.get('/weather', async (req, res) => {
   }
 
   try {
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${weatherApiKey}&units=metric`;
+    // Fetch coordinates for the location
+    const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${weatherApiKey}`;
+    const geoResponse = await axios.get(geoUrl);
+    const { lat, lon } = geoResponse.data[0];
+
+    // Fetch 7-day weather data using One Call API
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&units=metric&appid=${weatherApiKey}`;
     const response = await axios.get(weatherUrl);
 
-    const cityName = response.data.name;
-    const tempInCelsius = response.data.main.temp;
-    const tempInWords = getTemperatureInWords(tempInCelsius);
+    const forecast = response.data.daily.map((day) => ({
+      date: new Date(day.dt * 1000).toISOString(),
+      low: day.temp.min,
+      high: day.temp.max,
+      weather: day.weather[0].description,
+      icon: `http://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`,
+    }));
 
     res.json({
-      cityName,
-      cityAbbreviation: cityName.substring(0, 3).toUpperCase(),
-      tempInWords,
-      tempInCelsius,
-      lat: response.data.coord.lat, // Latitude
-      lon: response.data.coord.lon, // Longitude
+      cityName: location,
+      cityAbbreviation: location.substring(0, 3).toUpperCase(),
+      tempInWords: 'N/A', // Optional for dashboard
+      tempInCelsius: 'N/A', // Optional for dashboard
+      forecast,
     });
   } catch (error) {
     console.error(error.message);
@@ -69,43 +54,53 @@ app.get('/weather', async (req, res) => {
   }
 });
 
-// Helper function to convert temperature into descriptive words
+// Helper function for descriptive temperature
 const getTemperatureInWords = (temp) => {
-  if (temp < 0) return "Freezing";
-  if (temp < 10) return "Cold";
-  if (temp < 20) return "Cool";
-  if (temp < 30) return "Warm";
-  return "Hot";
+  if (temp < 0) return 'Freezing';
+  if (temp < 10) return 'Cold';
+  if (temp < 20) return 'Cool';
+  if (temp < 30) return 'Warm';
+  return 'Hot';
 };
 
-// Helper function to suggest activities
-const getActivities = (temp) => {
-  if (temp < 0) {
-    return [
-      { activity: "Skiing", location: "Snow Resort", mapUrl: "https://www.google.com/maps?q=snow+resort" },
-      { activity: "Ice Skating", location: "Ice Arena", mapUrl: "https://www.google.com/maps?q=ice+arena" },
-    ];
-  } else if (temp < 10) {
-    return [
-      { activity: "Hot Chocolate Tasting", location: "Cafe Central", mapUrl: "https://www.google.com/maps?q=cafe+central" },
-      { activity: "Indoor Movie Marathon", location: "Cinema Park", mapUrl: "https://www.google.com/maps?q=cinema+park" },
-    ];
-  } else if (temp < 20) {
-    return [
-      { activity: "Hiking", location: "Green Hill", mapUrl: "https://www.google.com/maps?q=green+hill" },
-      { activity: "Cycling", location: "City Park", mapUrl: "https://www.google.com/maps?q=city+park" },
-    ];
-  } else if (temp < 30) {
-    return [
-      { activity: "Swimming", location: "Beach Paradise", mapUrl: "https://www.google.com/maps?q=beach+paradise" },
-      { activity: "Outdoor Yoga", location: "Sunset Gardens", mapUrl: "https://www.google.com/maps?q=sunset+gardens" },
-    ];
-  } else {
-    return [
-      { activity: "Water Park Visit", location: "Splash World", mapUrl: "https://www.google.com/maps?q=splash+world" },
-      { activity: "Beach Volleyball", location: "Sunny Beach", mapUrl: "https://www.google.com/maps?q=sunny+beach" },
-    ];
+// Activities API
+app.get('/activities', (req, res) => {
+  const temp = parseFloat(req.query.temperature);
+
+  if (isNaN(temp)) {
+    return res.status(400).send('Invalid temperature value');
   }
+
+  const activities = getActivities(temp);
+  res.json(activities);
+});
+
+// Helper function for activities
+const getActivities = (temp) => {
+  const tempInWords = getTemperatureInWords(temp);
+  let activities = [];
+
+  switch (tempInWords) {
+    case 'Freezing':
+      activities = ['Skiing', 'Ice Skating', 'Snowboarding'];
+      break;
+    case 'Cold':
+      activities = ['Ice Fishing', 'Hiking', 'Snow Tubing'];
+      break;
+    case 'Cool':
+      activities = ['Cycling', 'Jogging', 'Hiking'];
+      break;
+    case 'Warm':
+      activities = ['Swimming', 'Kayaking', 'Running'];
+      break;
+    case 'Hot':
+      activities = ['Sunbathing', 'Surfing', 'Fishing'];
+      break;
+    default:
+      activities = ['Relaxing', 'Reading', 'Netflix'];
+  }
+
+  return activities;
 };
 
 
@@ -156,3 +151,11 @@ app.get('/map', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+
+
+
+
+
+
