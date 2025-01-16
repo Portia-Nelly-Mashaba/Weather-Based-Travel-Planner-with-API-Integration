@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import Header from '../header/Header';
 import sunCloudy from '../../assets/sun-cloudy.png';
 import Rain from '../../assets/rain.png';
 import PartlySunny from '../../assets/partly-sunny.png';
 import SunWindy from '../../assets/sun-windy.png';
-import Compass from '../../assets/compass.png';
-import Drops from '../../assets/drops.png';
-import Ultraviolet from '../../assets/ultraviolet.png';
+import emoji from 'emoji-dictionary';
 
 const Dashboard = () => {
   const [weatherData, setWeatherData] = useState(null);
@@ -24,19 +22,35 @@ const Dashboard = () => {
         throw new Error('Failed to fetch weather data');
       }
       const data = await response.json();
+      console.log('Weather data:', data); // Log weather data
       setWeatherData(data);
 
       // Fetch nearby outdoor activity locations
-      const placesResponse = await fetch(`http://localhost:5000/map?location=${location}`);
-      if (!placesResponse.ok) {
-        throw new Error('Failed to fetch places data');
-      }
-      const placesData = await placesResponse.json();
-      setPlaces(placesData.locationData); // Assuming `locationData` contains the list of places
+      fetchPlaces(data.lat, data.lon);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPlaces = async (lat, lon) => {
+    try {
+      const types = ['shopping_mall', 'library', 'museum', 'hotel'];
+      const promises = types.map(type =>
+        fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=5000&type=${type}&key=YOUR_GOOGLE_API_KEY`)
+          .then(response => response.json())
+      );
+      const results = await Promise.all(promises);
+      const placesData = results.flatMap(result => result.results.map(place => ({
+        name: place.name,
+        lat: place.geometry.location.lat,
+        lng: place.geometry.location.lng,
+      })));
+      console.log('Places data:', placesData); // Log places data
+      setPlaces(placesData);
+    } catch (error) {
+      console.error('Error fetching places data:', error);
     }
   };
 
@@ -56,25 +70,71 @@ const Dashboard = () => {
   };
 
   const getActivitiesByWeather = (tempInWords) => {
-    switch (tempInWords) {
-      case 'Freezing':
-        return ['Shopping', 'Dining', 'Museum Visit', 'Cinema', 'Library'];
-      case 'Cold':
-        return ['Sightseeing', 'Relaxing', 'Indoor Fitness', 'Nightlife'];
-      case 'Cool':
-        return ['Sightseeing', 'Hiking', 'Yoga', 'Outdoor Café', 'Park Lounging'];
-      case 'Warm':
-        return ['Swimming', 'Picnic', 'City Tour', 'Kayaking', 'Garden Visit'];
-      case 'Hot':
-        return ['Beach Day', 'Pool Relaxation', 'Evening Sightseeing', 'Outdoor Barbecue'];
-      default:
-        return ['Relaxing at Home', 'Reading', 'Netflix'];
-    }
+    const activities = {
+      Freezing: [
+        `Shopping ${emoji.getUnicode('shopping_bags')}`,
+        `Dining ${emoji.getUnicode('fork_and_knife')}`,
+        `Museum Visit ${emoji.getUnicode('classical_building')}`,
+        `Cinema ${emoji.getUnicode('clapper')}`,
+        `Library ${emoji.getUnicode('books')}`,
+      ],
+      Cold: [
+        `Sightseeing ${emoji.getUnicode('camera')}`,
+        `Relaxing ${emoji.getUnicode('relaxed')}`,
+        `Indoor Fitness ${emoji.getUnicode('muscle')}`,
+        `Nightlife ${emoji.getUnicode('night_with_stars')}`,
+      ],
+      Cool: [
+        `Sightseeing ${emoji.getUnicode('camera')}`,
+        `Hiking ${emoji.getUnicode('boot')}`,
+        `Yoga ${emoji.getUnicode('woman_in_lotus_position')}`,
+        `Outdoor Café ${emoji.getUnicode('coffee')}`,
+        `Park Lounging ${emoji.getUnicode('deciduous_tree')}`,
+      ],
+      Warm: [
+        `Swimming ${emoji.getUnicode('swimmer')}`,
+        `Picnic ${emoji.getUnicode('basket')}`,
+        `City Tour ${emoji.getUnicode('building_construction')}`,
+        `Kayaking ${emoji.getUnicode('canoe')}`,
+        `Garden Visit ${emoji.getUnicode('seedling')}`,
+      ],
+      Hot: [
+        `Beach Day ${emoji.getUnicode('beach_with_umbrella')}`,
+        `Pool Relaxation ${emoji.getUnicode('umbrella_on_ground')}`,
+        `Evening Sightseeing ${emoji.getUnicode('city_sunset')}`,
+        `Outdoor Barbecue ${emoji.getUnicode('meat_on_bone')}`,
+      ],
+    };
+    return activities[tempInWords] || [];
   };
 
   const getGoogleMapLink = (lat, lng) => {
     return `https://www.google.com/maps?q=${lat},${lng}`;
   };
+
+  // Function to fetch weather data for 4 days
+  const fetchWeatherData = async (lat, lon) => {
+    try {
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&cnt=4&units=metric&appid=YOUR_API_KEY`);
+      const data = await response.json();
+      console.log('Forecast data:', data); // Log forecast data
+      const forecast = data.list.map((item) => ({
+        date: new Date(item.dt * 1000).toISOString(),
+        low: item.main.temp_min,
+        high: item.main.temp_max,
+        weather: item.weather[0].description,
+        icon: `http://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`,
+      }));
+      setWeatherData((prevData) => ({ ...prevData, forecast }));
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Initial fetch for a default location
+    handleSearch('Johannesburg');
+  }, []);
 
   return (
     <div>

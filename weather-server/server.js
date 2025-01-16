@@ -65,7 +65,6 @@ const getTemperatureInWords = (temp) => {
   return 'Hot';
 };
 
-<<<<<<< HEAD
 // Activities API
 app.get('/activities', (req, res) => {
   const temp = parseFloat(req.query.temperature);
@@ -105,11 +104,6 @@ const getActivities = (temp) => {
 
   return activities;
 };
-
-
-
-=======
->>>>>>> d82e7a3c1ad7c3d776dc81d431c37f36d5fa260a
 // Map API endpoint (Google Maps)
 app.get('/map', async (req, res) => {
   const { location } = req.query;

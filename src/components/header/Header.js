@@ -1,4 +1,3 @@
-// src/components/header/Header.js
 import React, { useState } from 'react';
 import './Header.css';
 
@@ -19,7 +18,7 @@ const Header = ({ onSearch }) => {
     <div className="header-section">
       <div>
         <ion-icon name="location-outline"></ion-icon>
-        <span>Johannesburg, JHB</span>
+        <span>{searchText || 'Enter location'}</span>
       </div>
       <div>
         <ion-icon name="search-outline" onClick={handleSearch}></ion-icon>
